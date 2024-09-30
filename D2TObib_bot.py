@@ -3,7 +3,13 @@ import discord
 from discord.ext import commands
 import asyncio
 import threading
-from config import telegram_bot_token, discord_bot_token, telegram_chat_id
+# from config import telegram_bot_token, discord_bot_token, telegram_chat_id
+import os
+
+# Використовуйте змінні оточення для токенів та інших конфіденційних даних
+telegram_bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
+discord_bot_token = os.getenv('DISCORD_BOT_TOKEN')
+telegram_chat_id = os.getenv('TELEGRAM_CHAT_ID')
 
 # Імпортуємо Intents для Discord
 intents = discord.Intents.default()
