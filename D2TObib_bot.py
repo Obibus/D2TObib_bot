@@ -1,8 +1,9 @@
+import os
 import telebot
 import discord
 from discord.ext import commands
-import os
 from flask import Flask, request
+import threading
 
 # Використовуємо змінні оточення для токенів та інших конфіденційних даних
 telegram_bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
@@ -12,12 +13,12 @@ webhook_url = os.getenv('WEBHOOK_URL')
 
 # Імпортуємо Intents для Discord
 intents = discord.Intents.default()
-intents.message_content = True  # Дозволяємо боту читати контент повідомлень
+intents.message_content = True
 
-# Створюємо бота з параметром intents
+# Створюємо Discord бота
 discord_bot = commands.Bot(command_prefix='!', intents=intents)
 
-# Telegram Bot
+# Створюємо Telegram бота
 telegram_bot = telebot.TeleBot(telegram_bot_token)
 
 # Flask для відкриття порту
@@ -52,12 +53,19 @@ def telegram_webhook():
 def home():
     return "Бот працює!"
 
-# Основна функція для запуску обох ботів
-if __name__ == "__main__":
-    # Встановлення вебхука для Telegram
-    telegram_bot.remove_webhook()
-    telegram_bot.set_webhook(url=f'{webhook_url}/webhook')
-
-    # Запускаємо Flask для прослуховування порту
-    port = int(os.environ.get('PORT', 5000))  # Render надасть порт через змінну PORT
+# Функція для запуску Flask серверу
+def run_flask():
+    port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
+
+# Функція для запуску Discord бота
+def run_discord():
+    discord_bot.run(discord_bot_token)
+
+if __name__ == "__main__":
+    # Запускаємо Flask сервер в окремому потоці
+    flask_thread = threading.Thread(target=run_flask)
+    flask_thread.start()
+
+    # Запускаємо Discord бота в головному потоці
+    run_discord()
